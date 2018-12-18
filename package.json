@@ -1,0 +1,26 @@
+{
+  "name": "drone-plugin-git-sync",
+  "version": "1.0.0",
+  "description": "搬运代码至某仓库的的drone插件",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lpreterite/drone-plugin-git-sync.git"
+  },
+  "keywords": [],
+  "author": "packy-tang <lpreterite@126.com> (http://github.com/lpreterite)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lpreterite/drone-plugin-git-sync/issues"
+  },
+  "homepage": "https://github.com/lpreterite/drone-plugin-git-sync#readme",
+  "dependencies": {
+    "cpy": "^7.0.1",
+    "glob": "^7.1.3",
+    "simple-git": "^1.107.0"
+  }
+}
