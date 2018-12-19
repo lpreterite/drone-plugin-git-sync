@@ -1,20 +1,64 @@
-const fs = require("fs")
+const fs = require("fs-extra")
 const path = require("path")
-const cpy = require("cpy")
-const cpdir = require("./cpdir")
-const Git = require("simple-git/promise")("./tmp")
+const url = require('url')
 
-const USERNAME = 'tangwb'
-const PASSPORT = 'abc9696396**'
-const REPO = 'gogs.infzm.com/INF_FE/drone-test.git'
+module.exports = function(options){
+    options = Object.assign({
+        cwd: "tmp",
+        overwrite: true,
+        source: "dist",
+        output: "dist",
+        auth: null,
+        repository: null
+    }, options)
+    const repository = Object.assign({ url: "", branch: "master", commitLabel: "update by drone-plugin-git-sync" }, options.repository)
+    const auth = options.auth
+    // console.log(options)
 
-const name = 'tmp'
-const remote = `http://${USERNAME}:${PASSPORT}@${REPO}`
+    const Git = require("simple-git/promise")(options.cwd)
+    const _url = url.parse(repository.url)
+    const repository_name = _url.pathname.split('/').pop()
+    const repository_path = path.join(options.cwd, repository_name)
+    const remote = !auth
+                    ? repository.url
+                    : `${_url.protocol}//${auth.username}:${auth.password}@${_url.host}${_url.path}`
 
-Git
-    .silent(true)
-    .clone(remote, name)
-    .then(()=>fs.writeFileSync("./dist/ddfile/testfile.txt", `${Date.now()}`))
-    .then(()=>cpdir('./dist',`tmp/${name}/dist`))
-    .then(()=>console.log('finished'))
-    .catch((err) => console.error('failed: ', err));
+    if(fs.existsSync(repository_path)) fs.removeSync(repository_path)
+
+    console.log(`1 set`)
+    Git
+        .silent(true)
+        .clone(remote, repository_name)
+        .then(()=>console.log(`- clone repositopy: ${repository.url}`))
+        // .then(()=>fs.writeFileSync("./dist/ddfile/testfile.txt", `${Date.now()}`)) //test
+        .then(()=>Git.checkout(repository.branch))
+        .then(()=>Git.branchLocal())
+        .then(branchInfo=>console.log(`- checkout branch:${branchInfo.current}`))
+        .then(()=>{
+            const msg = `- '${path.join(repository_name, options.output)}' directory removed`
+            return !options.overwrite
+            ? fs.remove(path.join(repository_path, options.output))
+                .then(()=>console.log(msg))
+                .catch(e=>console.error('- failed: '+msg, e))
+            : ""
+        })
+        .then(()=>console.log('- finished!'))
+        .then(()=>console.log('2 set'))
+        .then(()=>{
+            const msg = `- copy '${options.source}' to '${repository_name}/${options.output}'`
+            return fs.copy(options.source, path.join(repository_path, options.output), {overwrite: true})
+                     .then(()=>console.log(msg))
+                     .catch(e=>console.error('- failed: '+msg, e))
+        })
+        .then(()=>console.log('- finished!'))
+        .then(()=>console.log('3 set'))
+        .then(()=>{
+            return Git.cwd(repository_path)
+                      .then(()=>Git.add(`./*`))
+                      .then(()=>Git.commit(repository.commitLabel))
+                      .then(()=>Git.push('origin', repository.branch))
+                      .catch(e => console.error('- failed: ', e))
+        })
+        .then(()=>console.log(`- commit changed and push 'origin/${repository.branch}' in ${repository_name} repositopy`))
+        .then(()=>console.log('- finished!'))
+}
