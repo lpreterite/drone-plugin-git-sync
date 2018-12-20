@@ -41,3 +41,5 @@ setps:
     git_auth_password:
         from_secret: password
 ```
+
+> `from_secret`作用的参数需要在drone版面下找到`SETTINGS->Secrets`进行添加
