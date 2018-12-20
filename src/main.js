@@ -9,10 +9,12 @@ module.exports = function(options){
         source: "dist",
         output: "dist",
         auth: null,
-        repository: null
+        repository: null,
+        config: null
     }, options)
     const repository = Object.assign({ url: "", branch: "master", commitLabel: "update by drone-plugin-git-sync" }, options.repository)
     const auth = options.auth
+    const config = options.config
     // console.log(options)
 
     const Git = require("simple-git/promise")(options.cwd)
@@ -54,6 +56,8 @@ module.exports = function(options){
         .then(()=>console.log('3 set'))
         .then(()=>{
             return Git.cwd(repository_path)
+                      .then(()=>Git.addConfig('user.name', config.name))
+                      .then(()=>Git.addConfig('user.email', config.email))
                       .then(()=>Git.add(`./*`))
                       .then(()=>Git.commit(repository.commitLabel))
                       .then(()=>Git.push('origin', repository.branch))

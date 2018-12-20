@@ -32,6 +32,9 @@ setps:
     auth:
         username: xxx
         password: xxxxxxxxx
+    config:
+        name: 'Packy-tang'
+        email: 'lpreterite@126.com'
     repository:
         url: https://github.com/lpreterite/vue-tinymce
         branch: master
