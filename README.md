@@ -1,6 +1,6 @@
 # drone-plugin-git-sync
 
-搬运代码至某仓库的的drone插件
+同步代码至另一个项目的`drone`插件，主要操作：拉取指定仓库后拷贝代码至相应目录并提交推送。
 
 ## Usage
 
@@ -10,6 +10,7 @@ Execute from the working directory:
 docker run --rm \
     -e PLUGIN_COPY=dist:publish/dist \
     -e PLUGIN_AUTH=username=xxx,password=xxxxxx \
+    -e PLUGIN_CONFIG=name=packy-tang,email=xxx@xxx.com \
     -e PLUGIN_REPOSITORY=url=https://github.com/lpreterite/drone-plugin-git-sync.git,branch=master \
     -v $(pwd):$(pwd) \
     -w $(pwd) \
