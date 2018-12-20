@@ -15,7 +15,7 @@ module.exports = function(options){
     const repository = Object.assign({ url: "", branch: "master", commitLabel: "update by drone-plugin-git-sync" }, options.repository)
     const auth = options.auth
     const config = options.config
-    console.log(options)
+    // console.log(options)
 
     if(!fs.existsSync(options.cwd)) fs.mkdirSync(options.cwd)
     const Git = require("simple-git/promise")(options.cwd)
