@@ -12,7 +12,10 @@ gitSync({
     overwrite: toBoolean(process.env.PLUGIN_OVERWRITE),
     source: directories[0][0],
     output: directories[0][1],
-    auth: toObject(process.env.PLUGIN_AUTH),
-    config: toObject(process.env.PLUGIN_CONFIG),
+    auth: {
+        username: process.env.PLUGIN_GIT_AUTH_USERNAME,
+        password: process.env.PLUGIN_GIT_AUTH_PASSWORD,
+    },
+    config: toObject(process.env.PLUGIN_GIT_CONFIG),
     repository: toObject(process.env.PLUGIN_REPOSITORY)
 })

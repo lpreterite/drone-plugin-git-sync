@@ -30,13 +30,14 @@ setps:
     overwrite: "true"
     copy:
         - "dist:public"
-    auth:
-        username: xxx
-        password: xxxxxxxxx
-    config:
-        name: 'Packy-tang'
-        email: 'lpreterite@126.com'
     repository:
         url: https://github.com/lpreterite/vue-tinymce
         branch: master
+    git_config:
+        name: 'Packy-tang'
+        email: 'lpreterite@126.com'
+    git_auth_username:
+        from_secret: username
+    git_auth_password:
+        from_secret: password
 ```
