@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 const gitSync = require('../src/main.js')
-const fromEntries = require('object.fromentries')
-const toObject = str => fromEntries(str.split(',').map(sub=>sub.split('=')))
+const toObject = str => JSON.parse(str)
 const toArray = str => str.split(',')
 const toBoolean = str => str === 'true'
 
