@@ -7,11 +7,12 @@ const toBoolean = str => str === 'true'
 
 const directories = process.env.PLUGIN_COPY ? toArray(process.env.PLUGIN_COPY).map(pathset=>pathset.split(':')) : []
 
+console.log(process.env.PLUGIN_CWD)
+
 gitSync({
     cwd: process.env.PLUGIN_CWD || 'tmp',
     overwrite: toBoolean(process.env.PLUGIN_OVERWRITE),
-    source: directories[0][0],
-    output: directories[0][1],
+    directories,
     auth: {
         username: process.env.PLUGIN_GIT_AUTH_USERNAME,
         password: process.env.PLUGIN_GIT_AUTH_PASSWORD,

@@ -10,11 +10,13 @@ module.exports = function(options){
         output: "dist",
         auth: null,
         repository: null,
-        config: null
+        config: null,
+        directories: null
     }, options)
     const repository = Object.assign({ url: "", branch: "master", commitLabel: "update by drone-plugin-git-sync" }, options.repository)
     const auth = options.auth
     const config = options.config
+    const directories = options.directories
     // console.log(options)
 
     if(!fs.existsSync(options.cwd)) fs.mkdirSync(options.cwd)
@@ -49,10 +51,16 @@ module.exports = function(options){
         .then(()=>console.log('- finished!'))
         .then(()=>console.log('2 set'))
         .then(()=>{
-            const msg = `- copy '${options.source}' to '${repository_name}/${options.output}'`
-            return fs.copy(options.source, path.join(repository_path, options.output), {overwrite: true})
-                     .then(()=>console.log(msg))
-                     .catch(e=>console.error('- failed: '+msg, e))
+            Promise.all(directories.map(([source, output])=>{
+                const msg = `- copy '${source}' to '${repository_name}/${output}'`
+                return fs.copy(source, path.join(repository_path, output), {overwrite: true})
+                .then(()=>console.log(msg))
+                .catch(e=>console.error('- failed: '+msg, e))
+            }))
+            // const msg = `- copy '${options.source}' to '${repository_name}/${options.output}'`
+            // return fs.copy(options.source, path.join(repository_path, options.output), {overwrite: true})
+            //          .then(()=>console.log(msg))
+            //          .catch(e=>console.error('- failed: '+msg, e))
         })
         .then(()=>console.log('- finished!'))
         .then(()=>console.log('3 set'))

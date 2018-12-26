@@ -8,10 +8,11 @@ Execute from the working directory:
 
 ```sh
 docker run --rm \
-    -e PLUGIN_COPY=dist:publish/dist \
-    -e PLUGIN_AUTH=username=xxx,password=xxxxxx \
-    -e PLUGIN_CONFIG=name=packy-tang,email=xxx@xxx.com \
-    -e PLUGIN_REPOSITORY=url=https://github.com/lpreterite/drone-plugin-git-sync.git,branch=master \
+    -e PLUGIN_GIT_AUTH_USERNAME=xxx \
+    -e PLUGIN_GIT_AUTH_PASSWORD=xxxxxx \
+    -e PLUGIN_GIT_CONFIG='{"name": "packy-tang", "email": "xxx@xxx.com"}' \
+    -e PLUGIN_REPOSITORY='{"url":"https://github.com/lpreterite/drone-plugin-git-sync.git", "branch":"master"}' \
+    -e PLUGIN_COPY=dist:public2,dist/index.html:resources/views/index.php \
     -v $(pwd):$(pwd) \
     -w $(pwd) \
   lpreterite/drone-plugin-git-sync
