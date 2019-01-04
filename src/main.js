@@ -31,15 +31,16 @@ module.exports = function(options){
 
     if(fs.existsSync(repository_path)) fs.removeSync(repository_path)
 
-    console.log(`1 set`)
+    console.log(`1 set`, repository.branch)
     Git
         .silent(true)
-        .clone(remote, repository_name)
+        .clone(remote, repository_name, ["-b", repository.branch])
         .then(()=>console.log(`- clone repositopy: ${repository.url}`))
         // .then(()=>fs.writeFileSync("./dist/ddfile/testfile.txt", `${Date.now()}`)) //test
-        .then(()=>Git.checkout(repository.branch))
-        .then(()=>Git.branchLocal())
-        .then(branchInfo=>console.log(`- checkout branch:${branchInfo.current}`))
+        // .then(()=>Git.checkout(repository.branch))
+        // .then(()=>Git.branchLocal())
+        // .then(branchInfo=>console.log(`- checkout branch:${branchInfo.current}`))
+        .then(()=>console.log(`- checkout branch: ${repository.branch}`))
         .then(()=>{
             const msg = `- '${path.join(repository_name, options.output)}' directory removed`
             return !options.overwrite
