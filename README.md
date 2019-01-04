@@ -43,4 +43,10 @@ setps:
         from_secret: password
 ```
 
+## Build
+
+```sh
+docker build -t lpreterite/drone-plugin-git-sync .
+```
+
 > `from_secret`作用的参数需要在drone版面下找到`SETTINGS->Secrets`进行添加
