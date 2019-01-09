@@ -36,11 +36,11 @@ module.exports = function(options){
 
     if(fs.existsSync(repository_path)) fs.removeSync(repository_path)
 
-    const local_ssh_key_path = path.join('/sshkeys/','.ssh')
+    const local_ssh_key_path = '/home/ssh/.ssh/'
     const isSSH = _url.protocol.substr(0,_url.protocol.length-1) === 'ssh'
 
     const GitSSHCommand = ()=>{
-        const GIT_SSH_COMMAND = `ssh -vvv -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${path.resolve(path.join(local_ssh_key_path, options.ssh_key))}`
+        const GIT_SSH_COMMAND = `ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${path.resolve(path.join(local_ssh_key_path, options.ssh_key))}`
         return Git
             .env("GIT_SSH_COMMAND", isSSH ? GIT_SSH_COMMAND : 'ssh')
     }
