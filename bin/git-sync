@@ -14,9 +14,11 @@ const auth = process.env.PLUGIN_GIT_AUTH_USERNAME ? {
 gitSync({
     cwd: process.env.PLUGIN_CWD || 'tmp',
     overwrite: toBoolean(process.env.PLUGIN_OVERWRITE),
+    silent: toBoolean(process.env.PLUGIN_GIT_CLONE_SILENT),
     directories,
     auth,
     config: toObject(process.env.PLUGIN_GIT_CONFIG),
     repository: toObject(process.env.PLUGIN_REPOSITORY),
-    ssh_key_path: process.env.PLUGIN_SSH_KEY_PATH
+    ssh_key_path: process.env.PLUGIN_SSH_KEY_PATH,
+    ssh_key: process.env.PLUGIN_SSH_KEY
 })
