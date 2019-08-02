@@ -1,5 +1,7 @@
 # drone-plugin-git-sync
 
+[![Docker Automated build](https://img.shields.io/docker/automated/lpreterite/drone-plugin-git-sync)](https://hub.docker.com/r/lpreterite/drone-plugin-git-sync)
+
 同步代码至另一个项目的`drone`插件，主要操作：拉取指定仓库后拷贝代码至相应目录并提交推送。
 
 ## Usage
