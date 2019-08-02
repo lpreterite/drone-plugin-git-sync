@@ -37,10 +37,11 @@ setps:
     git_config:
         name: 'Packy-tang'
         email: 'lpreterite@126.com'
-    git_auth_username:
-        from_secret: username
-    git_auth_password:
-        from_secret: password
+    git_account:
+        username:
+            from_secret: username
+        password:
+            from_secret: password
 ```
 
 Use ssh:
@@ -66,8 +67,7 @@ setps:
     git_config:
         name: 'Packy-tang'
         email: 'lpreterite@126.com'
-    ssh_key: id_rsa
-    ssh_key_path: /ssh/keys/
+    git_ssh: /ssh/keys/id_rsa
 
 volumes:
 - name: sshkeys

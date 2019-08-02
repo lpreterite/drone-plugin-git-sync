@@ -1,14 +1,14 @@
 {
   "name": "drone-plugin-git-sync",
-  "version": "1.0.0",
-  "description": "搬运代码至某仓库的的drone插件",
+  "version": "2.0.0",
+  "description": "搬运代码至另一个仓库的的drone插件",
   "main": "src/main.js",
   "bin": {
     "git-sync": "bin/git-sync.js"
   },
   "scripts": {
     "start": "node src/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -22,10 +22,15 @@
   },
   "homepage": "https://github.com/lpreterite/drone-plugin-git-sync#readme",
   "dependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "cross-env": "^5.2.0",
+    "dotenv": "^8.0.0",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.3",
+    "mocha": "^6.2.0",
     "object.fromentries": "^2.0.0",
+    "reify": "^0.20.12",
     "simple-git": "^1.107.0"
   }
 }

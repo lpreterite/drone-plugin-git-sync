@@ -4,3 +4,6 @@ tmp/
 dist/
 *.test
 .ssh
+.nyc_output
+.reify-cache
+.env

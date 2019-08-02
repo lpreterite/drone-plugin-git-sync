@@ -1,109 +1,166 @@
-const fs = require("fs-extra")
+const fs = require("fs")
+const fse = require("fs-extra")
 const path = require("path")
 const url = require('url')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
+const Git = require("simple-git/promise")
 
-module.exports = function(options){
+export function isSSH(remote){
+    let _url = url.parse(remote)
+    if(!_url.protocol){
+        _url = url.parse("ssh://"+"git@gitee.com:packy-tang/drone-test.git")
+    }
+    return _url.protocol.substr(0,_url.protocol.length-1) === 'ssh'
+}
+
+// use: setSSH(ssh_key_path)(Git)
+export function setSSH(ssh_key){
+    const GIT_SSH_COMMAND = `ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${ssh_key}`
+    return Git=>{
+        return Git.env("GIT_SSH_COMMAND", GIT_SSH_COMMAND)
+    }
+}
+// use: setConf(config)(Git)
+export function setConf({name, email}){
+    return git=>{
+        return Promise.all([
+            git.addConfig('user.name', name),
+            git.addConfig('user.email', email)
+        ])
+    }
+}
+
+export function getRepoName(remote){
+    const _url = url.parse(remote)
+    return _url.pathname.split('/').pop().replace('.git','')
+}
+
+export function cloneByAccount(options){
+    let { account, remote, local_path, branch } = Object.assign({branch:"master"}, options)
+    const _url = url.parse(remote)
+    const _remote = `${_url.protocol}//${account.username}:${account.password}@${_url.host}${_url.path}`
+    return git=>{
+        console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch:${branch}`)
+        return git.clone(_remote, local_path, ["-b", branch]).then(()=>console.log(`- finished!\n`))
+    }
+}
+
+export function cloneBySSH(options){
+    let { sshKey, remote, local_path, branch } = Object.assign({branch:"master"}, options)
+    return git=>{
+        setSSH(sshKey)(git)
+        console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch: ${branch}`)
+        return git.clone(remote, local_path, ["-b", branch]).then(()=>console.log(`- finished!\n`))
+    }
+}
+
+export function copy(target, copy, options={overwrite:true}){
+    console.log('copy files:')
+    return Promise.all(copy.map(([source, output])=>{
+        const msg = `- copy '${source}' to '${target}/${output}'`
+        return fse.copy(source, path.join(target, output), {overwrite: options.overwrite})
+        .then(()=>console.log(msg))
+        .catch(e=>console.error('- failed: '+msg, e))
+    }))
+    .then(()=>console.log('- finished!\n'))
+}
+
+export function commit(label=""){
+    return git=>{
+        return git.add(`./*`)
+        .then(()=>git.commit(label))
+    }
+}
+
+export function push(branch){
+    return git=>{
+        return git.push('origin', branch)
+    }
+}
+
+export function copyAndAuthorizeSSH(ssh_key_path, local_ssh_key_path){
+    console.log(`copy and authorize ssh:`)
+    if(!fse.existsSync(ssh_key_path)) throw new Error('SSH repository must be use SSH key file!')
+    fse.copySync(ssh_key_path, local_ssh_key_path)
+    console.log(`- copy ${ssh_key_path} to ${local_ssh_key_path}`)
+    return exec(`chmod 600 ${local_ssh_key_path}`)
+        .then(()=>{
+            console.log(`- authorize ${local_ssh_key_path} can read!`)
+        })
+}
+
+export function run(options){
     options = Object.assign({
         cwd: "tmp",
         overwrite: true,
-        source: "dist",
-        output: "dist",
-        auth: null,
+        copy: null,
+        silent: false,
+        ssh: null, // "[path]" 
+        account: null, // { username:"[username]", password: "[****]" }
         repository: null,
         config: null,
-        directories: null,
-        silent: false,
-        ssh_key_path: "",
-        ssh_key: ""
+        local_ssh_key_path: '/home/ssh/.ssh/'
     }, options)
-    const repository = Object.assign({ url: "", branch: "master", commitLabel: "update by drone-plugin-git-sync" }, options.repository)
-    const auth = options.auth
+
+    const repository = Object.assign({ url: "", branch: "master", commit_label: "update by drone-plugin-git-sync" }, options.repository)
+    const remote = repository.url
+    const account = options.account
     const config = options.config
-    const directories = options.directories
-    // console.log(options)
-
-    if(!fs.existsSync(options.cwd)) fs.mkdirSync(options.cwd)
-    const Git = require("simple-git/promise")(options.cwd)
-    const _url = url.parse(repository.url)
-
-    const repository_name = _url.pathname.split('/').pop()
+    const repository_name = getRepoName(repository.url)
     const repository_path = path.join(options.cwd, repository_name)
-    const remote = !auth
-                    ? repository.url
-                    : `${_url.protocol}//${auth.username}:${auth.password}@${_url.host}${_url.path}`
+    const branch = repository.branch
+    const is_ssh = isSSH(remote)
+    const ssh_key_name = is_ssh ? path.basename(options.ssh) : ""
+    const local_ssh_key_path = is_ssh ? path.join(options.local_ssh_key_path, ssh_key_name) : ""
 
-    if(fs.existsSync(repository_path)) fs.removeSync(repository_path)
+    if(!fse.existsSync(options.cwd)) fse.mkdirSync(options.cwd)
+    const git = Git(options.cwd).silent(options.silent)
 
-    const local_ssh_key_path = '/home/ssh/.ssh/'
-    const isSSH = _url.protocol.substr(0,_url.protocol.length-1) === 'ssh'
+    console.log(`repository:\n- url: ${remote}\n- branch: ${branch}\n`)
 
-    const GitSSHCommand = ()=>{
-        const GIT_SSH_COMMAND = `ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${path.resolve(path.join(local_ssh_key_path, options.ssh_key))}`
-        return Git
-            .env("GIT_SSH_COMMAND", isSSH ? GIT_SSH_COMMAND : 'ssh')
-    }
-    const GitClone = ()=>{
-        console.log(`1 set`)
-        return (isSSH ? GitSSHCommand() : Git)
-            .silent(options.silent)
-            .clone(remote, repository_name, ["-b", repository.branch])
-            .then(()=>console.log(`- clone repositopy: ${repository.url}`))
-            .then(()=>console.log(`- checkout branch: ${repository.branch}`))
-            .then(()=>{
-                const msg = `- '${path.join(repository_name, options.output)}' directory removed`
-                return !options.overwrite
-                ? fs.remove(path.join(repository_path, options.output))
-                    .then(()=>console.log(msg))
-                    .catch(e=>console.error('- failed: '+msg, e))
-                : ""
-            })
-            .then(()=>console.log('- finished!'))
-            .then(()=>console.log('2 set'))
-            .then(()=>{
-                return Promise.all(directories.map(([source, output])=>{
-                    const msg = `- copy '${source}' to '${repository_name}/${output}'`
-                    return fs.copy(source, path.join(repository_path, output), {overwrite: true})
-                    .then(()=>console.log(msg))
-                    .catch(e=>console.error('- failed: '+msg, e))
-                }))
-            })
-            .then(()=>console.log('- finished!'))
-            .then(()=>console.log('3 set'))
-            .then(()=>{
-                return Git.cwd(repository_path)
-                            .then(()=>Git.addConfig('user.name', config.name))
-                            .then(()=>Git.addConfig('user.email', config.email))
-                            .then(()=>Git.add(`./*`))
-                            .then(()=>Git.commit(repository.commitLabel))
-                            .then(()=>Git.push('origin', repository.branch))
-                            .catch(e => console.error('- failed: ', e))
-            })
-            .then(()=>console.log(`- commit changed and push 'origin/${repository.branch}' in ${repository_name} repositopy`))
-            .then(()=>console.log('- finished!'))
-    }
-
-    console.log(`0 set`)
-    console.log(`- get repository with : ${_url.protocol.substr(0,_url.protocol.length-1)}`)
-    if(isSSH){
-        fs
-            .copy(path.resolve(options.ssh_key_path), local_ssh_key_path)
-            .then(
-                ()=>{
-                    console.log(`- copy ssh key to ${local_ssh_key_path}`)
-                    console.log(`- check ssh key: ${path.resolve(path.join(local_ssh_key_path, options.ssh_key))} ${fs.existsSync(path.resolve(path.join(local_ssh_key_path, options.ssh_key)))?'has file':'none'}.`)
-                    Promise.all([
-                        exec(`chmod 600 ${path.resolve(path.join(local_ssh_key_path, options.ssh_key))}`).then(({stdout, stderr}) => { console.log(stdout, stderr) }),
-                        // exec(`ls -l ${path.resolve(local_ssh_key_path)}`).then(({stdout, stderr}) => { console.log(stdout, stderr) })
-                    ])
-                },
-                e=>console.error(`- copy ssh key to ${local_ssh_key_path} failed: `, e)
-            )
-            .then(()=>GitClone())
-            .catch(err => console.error)
+    if(!fs.existsSync(repository_path)){
+        return (
+            !!is_ssh
+            ? copyAndAuthorizeSSH(options.ssh, local_ssh_key_path)
+                .then(()=>cloneBySSH({
+                    sshKey: local_ssh_key_path,
+                    remote,
+                    local_path: repository_path,
+                    branch
+                })(git))
+            : cloneByAccount({
+                account,
+                remote,
+                local_path: repository_path,
+                branch
+            })(git)
+        )
+        .then(()=>copy(repository_path, options.copy, {overwrite:options.overwrite}))
+        .then(()=>console.log('commit and push:'))
+        .then(()=>git.cwd(repository_path))
+        .then(()=>setConf(config)(git))
+        .then(()=>commit(repository.commit_label)(git))
+        .then(()=>push(branch)(git))
+        .then(()=>console.log('- finished!\n'))
     }else{
-        GitClone()
-            .catch(err => console.error)
+        return (
+            !!is_ssh
+            ? copyAndAuthorizeSSH(options.ssh, local_ssh_key_path)
+            : Promise.resolve()
+        )
+        .then(()=>git.cwd(repository_path))
+        .then(()=>console.log(`fetch: `))
+        .then(()=>git.fetch({'--all': null}))
+        .then(()=>git.reset('origin/master'))
+        .then(()=>console.log(`- finished!\n`))
+        .then(()=>copy(repository_path, options.copy, {overwrite:options.overwrite}))
+        .then(()=>console.log('commit and push:'))
+        .then(()=>setConf(config)(git))
+        .then(()=>commit(repository.commit_label)(git))
+        .then(()=>push(branch)(git))
+        .then(()=>console.log('- finished!\n'))
     }
 }
+
+module.exports = run
