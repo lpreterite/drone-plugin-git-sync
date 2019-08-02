@@ -1,4 +1,4 @@
-FROM node:8.11.4-alpine
+FROM node:8.16.0-alpine
 
 RUN apk update && apk add git openssh-client
 RUN git --version

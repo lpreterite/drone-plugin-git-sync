@@ -115,9 +115,9 @@ export function run(options){
     const local_ssh_key_path = is_ssh ? path.join(options.local_ssh_key_path, ssh_key_name) : ""
 
     if(!fse.existsSync(options.cwd)) fse.mkdirSync(options.cwd)
-    const git = Git(options.cwd).silent(options.silent)
+    const git = Git(options.cwd).silent(options.silent).env('GIT_SSH_COMMAND','ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no')
 
-    console.log(`repository:\n- url: ${remote}\n- branch: ${branch}\n`)
+    console.log(`repository:\n- url: ${remote}\n- branch: ${branch}\n- cwd: ${path.resolve(options.cwd)}\n`)
 
     if(!fs.existsSync(repository_path)){
         return (
@@ -126,13 +126,13 @@ export function run(options){
                 .then(()=>cloneBySSH({
                     sshKey: local_ssh_key_path,
                     remote,
-                    local_path: repository_path,
+                    local_path: repository_name,
                     branch
                 })(git))
             : cloneByAccount({
                 account,
                 remote,
-                local_path: repository_path,
+                local_path: repository_name,
                 branch
             })(git)
         )

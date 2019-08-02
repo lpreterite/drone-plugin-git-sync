@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('reify')
 const gitSync = require('../src/main.js')
 const toObject = str => JSON.parse(str)
 const toArray = str => str.split(',')
@@ -9,11 +10,11 @@ const copy = process.env.PLUGIN_COPY ? toArray(process.env.PLUGIN_COPY).map(path
 
 gitSync({
     cwd: process.env.PLUGIN_CWD || 'tmp',
-    overwrite: toBoolean(process.env.PLUGIN_OVERWRITE),
+    overwrite: process.env.PLUGIN_OVERWRITE ? toBoolean(process.env.PLUGIN_OVERWRITE) : true,
     silent: toBoolean(process.env.PLUGIN_SILENT),
     copy,
-    account: toObject(process.env.PLUGIN_GIT_ACCOUNT),
-    config: toObject(process.env.PLUGIN_GIT_CONFIG),
-    repository: toObject(process.env.PLUGIN_REPOSITORY),
+    account: process.env.PLUGIN_GIT_ACCOUNT ? toObject(process.env.PLUGIN_GIT_ACCOUNT) : null,
+    config: process.env.PLUGIN_GIT_CONFIG ? toObject(process.env.PLUGIN_GIT_CONFIG) : null,
+    repository: process.env.PLUGIN_REPOSITORY ? toObject(process.env.PLUGIN_REPOSITORY) : null,
     ssh: process.env.PLUGIN_GIT_SSH,
 })
