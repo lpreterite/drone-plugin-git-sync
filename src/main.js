@@ -47,9 +47,8 @@ export function cloneByAccount(options){
 }
 
 export function cloneBySSH(options){
-    let { sshKey, remote, local_path, branch } = Object.assign({branch:"master"}, options)
+    let { remote, local_path, branch } = Object.assign({branch:"master"}, options)
     return git=>{
-        setSSH(sshKey)(git)
         console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch: ${branch}`)
         return git.clone(remote, local_path, ["-b", branch]).then(()=>console.log(`- finished!\n`))
     }
@@ -86,7 +85,7 @@ export function copyAndAuthorizeSSH(ssh_key_path, local_ssh_key_path){
     console.log(`- copy ${ssh_key_path} to ${local_ssh_key_path}`)
     return exec(`chmod 600 ${local_ssh_key_path}`)
         .then(()=>{
-            console.log(`- authorize ${local_ssh_key_path} can read!`)
+            console.log(`- authorize ${local_ssh_key_path} can read!\n`)
         })
 }
 
@@ -123,8 +122,8 @@ export function run(options){
         return (
             !!is_ssh
             ? copyAndAuthorizeSSH(options.ssh, local_ssh_key_path)
+                .then(()=>setSSH(local_ssh_key_path)(git))
                 .then(()=>cloneBySSH({
-                    sshKey: local_ssh_key_path,
                     remote,
                     local_path: repository_name,
                     branch
@@ -146,7 +145,7 @@ export function run(options){
     }else{
         return (
             !!is_ssh
-            ? copyAndAuthorizeSSH(options.ssh, local_ssh_key_path)
+            ? copyAndAuthorizeSSH(options.ssh, local_ssh_key_path).then(()=>setSSH(local_ssh_key_path)(git))
             : Promise.resolve()
         )
         .then(()=>git.cwd(repository_path))
