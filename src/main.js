@@ -99,7 +99,7 @@ export function run(options){
         account: null, // { username:"[username]", password: "[****]" }
         repository: null,
         config: null,
-        local_ssh_key_path: '/home/ssh/.ssh/'
+        local_ssh_key_path: 'ssh/'
     }, options)
 
     const repository = Object.assign({ url: "", branch: "master", commit_label: "update by drone-plugin-git-sync" }, options.repository)
@@ -111,7 +111,7 @@ export function run(options){
     const branch = repository.branch
     const is_ssh = isSSH(remote)
     const ssh_key_name = is_ssh ? path.basename(options.ssh) : ""
-    const local_ssh_key_path = is_ssh ? path.join(options.local_ssh_key_path, ssh_key_name) : ""
+    const local_ssh_key_path = is_ssh ? path.join(path.resolve(__dirname, '..'), options.cwd, options.local_ssh_key_path, ssh_key_name) : ""
 
     if(!fse.existsSync(options.cwd)) fse.mkdirSync(options.cwd)
     const git = Git(options.cwd).silent(options.silent).env('GIT_SSH_COMMAND','ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no')
@@ -151,7 +151,8 @@ export function run(options){
         .then(()=>git.cwd(repository_path))
         .then(()=>console.log(`fetch: `))
         .then(()=>git.fetch({'--all': null}))
-        .then(()=>git.reset('origin/master'))
+        .then(()=>git.reset('hard', `origin/${branch}`))
+        .then(()=>git.pull())
         .then(()=>console.log(`- finished!\n`))
         .then(()=>copy(repository_path, options.copy, {overwrite:options.overwrite}))
         .then(()=>console.log('commit and push:'))
