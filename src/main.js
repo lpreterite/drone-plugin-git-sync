@@ -78,6 +78,21 @@ export function push(branch){
     }
 }
 
+export function checkout(branch, origin){
+    return git=>{
+        return git.branchLocal()
+        .then(result=>{
+            if(result.all.indexOf(branch)>-1){
+                //have branch
+                return git.checkoutBranch(branch).then(()=>git.reset('hard', `${origin}/${branch}`))
+            }else{
+                //not have branch
+                return git.checkoutBranch(branch, `${origin}/${branch}`)
+            }
+        })
+    }
+}
+
 export function copyAndAuthorizeSSH(ssh_key_path, local_ssh_key_path){
     console.log(`copy and authorize ssh:`)
     if(!fse.existsSync(ssh_key_path)) throw new Error('SSH repository must be use SSH key file!')
@@ -149,9 +164,10 @@ export function run(options){
             : Promise.resolve()
         )
         .then(()=>git.cwd(repository_path))
-        .then(()=>console.log(`fetch: `))
+        .then(()=>console.log(`checkout: `))
         .then(()=>git.fetch({'--all': null}))
-        .then(()=>git.reset('hard', `origin/${branch}`))
+        .then(()=>checkout(branch, 'origin')(git))
+        // .then(()=>git.reset('hard', `origin/${branch}`))
         .then(()=>git.pull())
         .then(()=>console.log(`- finished!\n`))
         .then(()=>copy(repository_path, options.copy, {overwrite:options.overwrite}))
