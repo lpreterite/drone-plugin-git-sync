@@ -84,7 +84,7 @@ export function checkout(branch, origin){
         .then(result=>{
             if(result.all.indexOf(branch)>-1){
                 //have branch
-                return git.checkoutBranch(branch).then(()=>git.reset('hard', `${origin}/${branch}`))
+                return git.checkout(branch).then(()=>git.reset('hard', `${origin}/${branch}`))
             }else{
                 //not have branch
                 return git.checkoutBranch(branch, `${origin}/${branch}`)
@@ -164,9 +164,11 @@ export function run(options){
             : Promise.resolve()
         )
         .then(()=>git.cwd(repository_path))
-        .then(()=>console.log(`checkout: `))
+        .then(()=>console.log(`fetch: `))
         .then(()=>git.fetch({'--all': null}))
+        .then(()=>console.log(`- finished!\ncheckout:`))
         .then(()=>checkout(branch, 'origin')(git))
+        .then(()=>console.log(`- finished!\npull:`))
         // .then(()=>git.reset('hard', `origin/${branch}`))
         .then(()=>git.pull())
         .then(()=>console.log(`- finished!\n`))
