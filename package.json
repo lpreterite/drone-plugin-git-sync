@@ -31,6 +31,6 @@
     "mocha": "^6.2.0",
     "object.fromentries": "^2.0.0",
     "reify": "^0.20.12",
-    "simple-git": "^1.107.0"
+    "simple-git": "^3.3.0"
   }
 }
