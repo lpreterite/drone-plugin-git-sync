@@ -94,16 +94,17 @@ export function checkout(branch, origin){
 }
 
 export function copyAndAuthorizeSSH(ssh_key, ssh_key_path, local_ssh_key_path){
-    console.log(`copy and authorize ssh:`)
     if(!!ssh_key){
+        console.log(`authorize ssh:`)
         try{
-            fse.touchFileSync(local_ssh_key_path)
+            fse.ensureFileSync(local_ssh_key_path)
             fse.writeFileSync(local_ssh_key_path, ssh_key)
             console.log(`- write ssh_key in ${local_ssh_key_path}`)
         }catch(e){
             console.error(e)
         }
     }else{
+        console.log(`copy and authorize ssh:`)
         if(!fse.existsSync(ssh_key_path)) throw new Error('SSH repository must be use SSH key file!')
         fse.copySync(ssh_key_path, local_ssh_key_path)
         console.log(`- copy ${ssh_key_path} to ${local_ssh_key_path}`)
@@ -135,7 +136,7 @@ export function run(options){
     const repository_path = path.join(options.cwd, repository_name)
     const branch = repository.branch
     const is_ssh = isSSH(remote)
-    const ssh_key_name = is_ssh ? path.basename(options.ssh) : ""
+    const ssh_key_name = is_ssh ? (options.ssh ? path.basename(options.ssh) : "ssh_key") : ""
     const local_ssh_key_path = is_ssh ? path.join(path.resolve(__dirname, '..'), options.cwd, options.local_ssh_key_path, ssh_key_name) : ""
 
     if(!fse.existsSync(options.cwd)) fse.mkdirSync(options.cwd)
@@ -146,7 +147,7 @@ export function run(options){
     if(!fs.existsSync(repository_path)){
         return (
             !!is_ssh
-            ? copyAndAuthorizeSSH(options.ssh, local_ssh_key_path)
+            ? copyAndAuthorizeSSH(options.ssh_key, options.ssh, local_ssh_key_path)
                 .then(()=>setSSH(local_ssh_key_path)(git))
                 .then(()=>cloneBySSH({
                     remote,

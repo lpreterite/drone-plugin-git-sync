@@ -5,4 +5,6 @@ RUN git --version
 COPY . /home/drone-plugin-git-sync
 RUN cd /home/drone-plugin-git-sync \
     && npm ci
-ENTRYPOINT ["/home/drone-plugin-git-sync/bin/git-sync"]
+CMD ["node","/home/drone-plugin-git-sync/bin/git-sync"]
+# ENTRYPOINT ["/bin/sh"]
+# ENTRYPOINT ["sh /home/drone-plugin-git-sync/bin/git-sync"]
