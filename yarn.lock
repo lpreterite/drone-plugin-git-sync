@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@kwsites/file-exists@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@kwsites/file-exists/-/file-exists-1.1.1.tgz#ad1efcac13e1987d8dbaf235ef3be5b0d96faa99"
+  dependencies:
+    debug "^4.1.1"
+
+"@kwsites/promise-deferred@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@kwsites/promise-deferred/-/promise-deferred-1.1.1.tgz#8ace5259254426ccef57f3175bc64ed7095ed919"
+
 acorn-dynamic-import@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/acorn-dynamic-import/-/acorn-dynamic-import-4.0.0.tgz#482210140582a36b83c3e342e1cfebcaa9240948"
@@ -139,11 +149,11 @@ debug@3.2.6:
   dependencies:
     ms "^2.1.1"
 
-debug@^4.0.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
+debug@^4.1.1, debug@^4.3.3:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.4.tgz#1319f6579357f2338d3337d2cdd4914bb5dcc865"
   dependencies:
-    ms "^2.1.1"
+    ms "2.1.2"
 
 decamelize@^1.2.0:
   version "1.2.0"
@@ -481,7 +491,7 @@ ms@2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
 
-ms@^2.1.1:
+ms@2.1.2, ms@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
 
@@ -643,11 +653,13 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-simple-git@^1.107.0:
-  version "1.124.0"
-  resolved "https://registry.yarnpkg.com/simple-git/-/simple-git-1.124.0.tgz#10a73cc1af303832b5c11720d4256e134fba35ca"
+simple-git@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/simple-git/-/simple-git-3.5.0.tgz#3c3538f4d7a1b3c8f3904412b12740bdcad9c8b1"
   dependencies:
-    debug "^4.0.1"
+    "@kwsites/file-exists" "^1.1.1"
+    "@kwsites/promise-deferred" "^1.1.1"
+    debug "^4.3.3"
 
 sourcemap-codec@^1.4.4:
   version "1.4.6"
