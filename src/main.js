@@ -37,20 +37,20 @@ export function getRepoName(remote){
 }
 
 export function cloneByAccount(options){
-    let { account, remote, local_path, branch } = Object.assign({branch:"master"}, options)
+    let { account, remote, local_path, branch, depth } = Object.assign({branch:"master"}, options)
     const _url = url.parse(remote)
     const _remote = `${_url.protocol}//${account.username}:${account.password}@${_url.host}${_url.path}`
     return git=>{
         console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch:${branch}`)
-        return git.clone(_remote, local_path, ["-b", branch]).then(()=>console.log(`- finished!\n`))
+        return git.clone(_remote, local_path, ["-b", branch, "--depth", depth]).then(()=>console.log(`- finished!\n`))
     }
 }
 
 export function cloneBySSH(options){
-    let { remote, local_path, branch } = Object.assign({branch:"master"}, options)
+    let { remote, local_path, branch, depth } = Object.assign({branch:"master"}, options)
     return git=>{
         console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch: ${branch}`)
-        return git.clone(remote, local_path, ["-b", branch]).then(()=>console.log(`- finished!\n`))
+        return git.clone(remote, local_path, ["-b", branch, "--depth", depth]).then(()=>console.log(`- finished!\n`))
     }
 }
 
@@ -125,7 +125,7 @@ export function run(options){
         account: null, // { username:"[username]", password: "[****]" }
         repository: null,
         config: null,
-        local_ssh_key_path: 'ssh/'
+        local_ssh_key_path: 'ssh/',
     }, options)
 
     const repository = Object.assign({ url: "", branch: "master", commit_label: "update by drone-plugin-git-sync" }, options.repository)
@@ -135,6 +135,7 @@ export function run(options){
     const repository_name = getRepoName(repository.url)
     const repository_path = path.join(options.cwd, repository_name)
     const branch = repository.branch
+    const depth = options.depth || 1
     const is_ssh = isSSH(remote)
     const ssh_key_name = is_ssh ? (options.ssh ? path.basename(options.ssh) : "ssh_key") : ""
     const local_ssh_key_path = is_ssh ? path.join(path.resolve(__dirname, '..'), options.cwd, options.local_ssh_key_path, ssh_key_name) : ""
@@ -152,7 +153,8 @@ export function run(options){
                 .then(()=>cloneBySSH({
                     remote,
                     local_path: repository_name,
-                    branch
+                    branch,
+                    depth
                 })(git))
             : cloneByAccount({
                 account,

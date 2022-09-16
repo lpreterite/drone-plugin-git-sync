@@ -110,6 +110,7 @@ volumes:
 | PLUGIN_GIT_ACCOUNT | git_auth_username | `string`, 仓库授权的账户与密码，用于 http 方式 push 仓库时使用，接受格式： `{ username: '[username]', password: '[******]'}` |
 | PLUGIN_GIT_SSH     | git_ssh           | `string`, 仓库授权私钥地址，用于 ssh 方式 push 仓库时使用                                                                    |
 | PLUGIN_GIT_SSH_KEY     | git_ssh_key           | `string`, 仓库授权私址，用于 ssh 方式 push 仓库时使用。                                                                    |
+| PLUGIN_GIT_CLONE_DEPTH     | git_clone_depth           | `number`,默认值为`1`, 拉取仓库时保留历史数目，默认设置1，用于加快仓库拉取。                                                                   |
 
 ## Build
 

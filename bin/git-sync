@@ -17,4 +17,5 @@ gitSync({
     repository: process.env.PLUGIN_REPOSITORY ? toObject(process.env.PLUGIN_REPOSITORY) : null,
     ssh:process.env.PLUGIN_GIT_SSH,
     ssh_key:process.env.PLUGIN_GIT_SSH_KEY,
+    depth: process.env.PLUGIN_GIT_CLONE_DEPTH,
 })
