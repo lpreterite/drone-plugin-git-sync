@@ -7,7 +7,6 @@ const toArray = str => str.split(',')
 const toBoolean = str => str === 'true'
 
 const copy = process.env.PLUGIN_COPY ? toArray(process.env.PLUGIN_COPY).map(pathset=>pathset.split(':')) : []
-
 gitSync({
     cwd: process.env.PLUGIN_CWD || 'tmp',
     overwrite: process.env.PLUGIN_OVERWRITE ? toBoolean(process.env.PLUGIN_OVERWRITE) : true,
@@ -16,5 +15,6 @@ gitSync({
     account: process.env.PLUGIN_GIT_ACCOUNT ? toObject(process.env.PLUGIN_GIT_ACCOUNT) : null,
     config: process.env.PLUGIN_GIT_CONFIG ? toObject(process.env.PLUGIN_GIT_CONFIG) : null,
     repository: process.env.PLUGIN_REPOSITORY ? toObject(process.env.PLUGIN_REPOSITORY) : null,
-    ssh: process.env.PLUGIN_GIT_SSH,
+    ssh:process.env.PLUGIN_GIT_SSH,
+    ssh_key:process.env.PLUGIN_GIT_SSH_KEY,
 })

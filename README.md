@@ -45,6 +45,29 @@ setps:
                   from_secret: password
 ```
 
+Use ssh and set ssh_key:
+
+```yml
+kind: pipeline
+name: default
+
+setps:
+    - name: git-sync
+      image: lpreterite/drone-plugin-git-sync
+      settings:
+          overwrite: "true"
+          copy:
+              - "dist:public"
+          repository:
+              url: ssh://github.com/lpreterite/vue-tinymce.git
+              branch: master
+          git_config:
+              name: "Packy-tang"
+              email: "lpreterite@126.com"
+          git_ssh_key: 
+              from_secret: ssh_key
+```
+
 Use ssh:
 
 ```yml
@@ -75,8 +98,6 @@ volumes:
           path: /ssh/keys/
 ```
 
-> Use volumes set must set `Trusted` with true in [Repository]->[SETTINGS] on drone
-
 ## Options
 
 | env                | yml               |                                                                                                                              |
@@ -88,6 +109,7 @@ volumes:
 | PLUGIN_GIT_CONFIG  | git_config        | `json`, git 设置，目前只支持设置`name`和`email`，接受格式：`{ name: '[yourname]', email:'[yourname@mail.com]' }`             |
 | PLUGIN_GIT_ACCOUNT | git_auth_username | `string`, 仓库授权的账户与密码，用于 http 方式 push 仓库时使用，接受格式： `{ username: '[username]', password: '[******]'}` |
 | PLUGIN_GIT_SSH     | git_ssh           | `string`, 仓库授权私钥地址，用于 ssh 方式 push 仓库时使用                                                                    |
+| PLUGIN_GIT_SSH_KEY     | git_ssh_key           | `string`, 仓库授权私址，用于 ssh 方式 push 仓库时使用。                                                                    |
 
 ## Build
 

@@ -93,11 +93,21 @@ export function checkout(branch, origin){
     }
 }
 
-export function copyAndAuthorizeSSH(ssh_key_path, local_ssh_key_path){
+export function copyAndAuthorizeSSH(ssh_key, ssh_key_path, local_ssh_key_path){
     console.log(`copy and authorize ssh:`)
-    if(!fse.existsSync(ssh_key_path)) throw new Error('SSH repository must be use SSH key file!')
-    fse.copySync(ssh_key_path, local_ssh_key_path)
-    console.log(`- copy ${ssh_key_path} to ${local_ssh_key_path}`)
+    if(!!ssh_key){
+        try{
+            fse.touchFileSync(local_ssh_key_path)
+            fse.writeFileSync(local_ssh_key_path, ssh_key)
+            console.log(`- write ssh_key in ${local_ssh_key_path}`)
+        }catch(e){
+            console.error(e)
+        }
+    }else{
+        if(!fse.existsSync(ssh_key_path)) throw new Error('SSH repository must be use SSH key file!')
+        fse.copySync(ssh_key_path, local_ssh_key_path)
+        console.log(`- copy ${ssh_key_path} to ${local_ssh_key_path}`)
+    }
     return exec(`chmod 600 ${local_ssh_key_path}`)
         .then(()=>{
             console.log(`- authorize ${local_ssh_key_path} can read!\n`)
@@ -160,7 +170,7 @@ export function run(options){
     }else{
         return (
             !!is_ssh
-            ? copyAndAuthorizeSSH(options.ssh, local_ssh_key_path).then(()=>setSSH(local_ssh_key_path)(git))
+            ? copyAndAuthorizeSSH(options.ssh_key, options.ssh, local_ssh_key_path).then(()=>setSSH(local_ssh_key_path)(git))
             : Promise.resolve()
         )
         .then(()=>git.cwd(repository_path))
