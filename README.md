@@ -9,7 +9,7 @@
 Execute from the working directory:
 
 ```sh
-docker run --rm \
+MSYS_NO_PATHCONV=1 docker run --rm \
     -e PLUGIN_ACCOUNT='{"username": "packy-tang", "password": "******"}' \
     -e PLUGIN_GIT_CONFIG='{"name": "packy-tang", "email": "xxx@xxx.com"}' \
     -e PLUGIN_REPOSITORY='{"url":"https://github.com/lpreterite/drone-plugin-git-sync.git", "branch":"master"}' \
