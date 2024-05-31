@@ -129,7 +129,7 @@ export function run(options){
         local_ssh_key_path: 'ssh/',
         debug: false
     }, options)
-    if(debug) console.log("marge::%s",JSON.stringify(options))
+    if(options.debug) console.log("marge::%s",JSON.stringify(options))
 
     const repository = Object.assign({ url: "", branch: "master", commit_label: "update by drone-plugin-git-sync" }, options.repository)
     const remote = repository.url
