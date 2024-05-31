@@ -10,7 +10,8 @@ Execute from the working directory:
 
 ```sh
 MSYS_NO_PATHCONV=1 docker run --rm \
-    -e PLUGIN_ACCOUNT='{"username": "packy-tang", "password": "******"}' \
+    -e PLUGIN_GIT_USERNAME="packy-tang" \
+    -e PLUGIN_GIT_PASSWORD="******" \
     -e PLUGIN_GIT_CONFIG='{"name": "packy-tang", "email": "xxx@xxx.com"}' \
     -e PLUGIN_REPOSITORY='{"url":"https://github.com/lpreterite/drone-plugin-git-sync.git", "branch":"master"}' \
     -e PLUGIN_COPY=dist:public2,dist/index.html:resources/views/index.php \
@@ -38,11 +39,10 @@ setps:
           git_config:
               name: "Packy-tang"
               email: "lpreterite@126.com"
-          git_account:
-              username:
-                  from_secret: username
-              password:
-                  from_secret: password
+          git_username:
+              from_secret: username
+          git_password:
+              from_secret: password
 ```
 
 Use ssh and set ssh_key:
@@ -100,17 +100,19 @@ volumes:
 
 ## Options
 
-| env                | yml               |                                                                                                                              |
-| ------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| PLUGIN_CWD         | cwd               | `string`, 仓库下载处理目录，默认为`./tmp/`                                                                                   |
-| PLUGIN_OVERWRITE   | overwrite         | `string`, 拷贝文件时是否复写文件，默认为"true"                                                                               |
-| PLUGIN_REPOSITORY  | repository        | `json`, 仓库信息，默认为`{"url":"[Repository Url]", "branch":"master", "commit_label": "update by drone"}`                   |
-| PLUGIN_COPY        | copy              | `array`, 拷贝文件的设置，设置方式为："[source path]:[target path]"                                                           |
-| PLUGIN_GIT_CONFIG  | git_config        | `json`, git 设置，目前只支持设置`name`和`email`，接受格式：`{ name: '[yourname]', email:'[yourname@mail.com]' }`             |
-| PLUGIN_GIT_ACCOUNT | git_auth_username | `string`, 仓库授权的账户与密码，用于 http 方式 push 仓库时使用，接受格式： `{ username: '[username]', password: '[******]'}` |
-| PLUGIN_GIT_SSH     | git_ssh           | `string`, 仓库授权私钥地址，用于 ssh 方式 push 仓库时使用                                                                    |
-| PLUGIN_GIT_SSH_KEY     | git_ssh_key           | `string`, 仓库授权私址，用于 ssh 方式 push 仓库时使用。                                                                    |
-| PLUGIN_GIT_CLONE_DEPTH     | git_clone_depth           | `number`,默认值为`1`, 拉取仓库时保留历史数目，默认设置1，用于加快仓库拉取。                                                                   |
+| env                    | yml               |                                                                                                                  |
+| ---------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------- |
+| PLUGIN_DEBUG | debug   | `boolean` ，默认为`false` ，开启后能打印调试用信息。                        |
+| PLUGIN_CWD             | cwd               | `string`, 仓库下载处理目录，默认为`./tmp/`                                                                       |
+| PLUGIN_OVERWRITE       | overwrite         | `boolean`, 拷贝文件时是否复写文件，默认为"true"                                                                   |
+| PLUGIN_REPOSITORY      | repository        | `json`, 仓库信息，默认为`{"url":"[Repository Url]", "branch":"master", "commit_label": "update by drone"}`       |
+| PLUGIN_COPY            | copy              | `array`, 拷贝文件的设置，设置方式为："[source path]:[target path]"                                               |
+| PLUGIN_GIT_CONFIG      | git_config        | `json`, git 设置，目前只支持设置`name`和`email`，接受格式：`{ name: '[yourname]', email:'[yourname@mail.com]' }` |
+| PLUGIN_GIT_USERNAME    | git_auth_username | `string`, 仓库授权的账户，用于 http 方式 push 仓库时使用                                                         |
+| PLUGIN_GIT_PASSWORD    | git_auth_password | `string`, 仓库授权的密码，用于 http 方式 push 仓库时使用                                                         |
+| PLUGIN_GIT_SSH         | git_ssh           | `string`, 仓库授权私钥地址，用于 ssh 方式 push 仓库时使用                                                        |
+| PLUGIN_GIT_SSH_KEY     | git_ssh_key       | `string`, 仓库授权私址，用于 ssh 方式 push 仓库时使用。                                                          |
+| PLUGIN_GIT_CLONE_DEPTH | git_clone_depth   | `number`,默认值为`1`, 拉取仓库时保留历史数目，默认设置1，用于加快仓库拉取。                                      |
 
 ## Build
 

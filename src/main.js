@@ -41,7 +41,7 @@ export function cloneByAccount(options){
     const _url = url.parse(remote)
     const _remote = `${_url.protocol}//${account.username}:${account.password}@${_url.host}${_url.path}`
     return git=>{
-        console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch:${branch}`)
+        console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch:${branch} \n- depth: ${depth}`)
         return git.clone(_remote, local_path, ["-b", branch, "--depth", depth]).then(()=>console.log(`- finished!\n`))
     }
 }
@@ -49,7 +49,7 @@ export function cloneByAccount(options){
 export function cloneBySSH(options){
     let { remote, local_path, branch, depth } = Object.assign({branch:"master"}, options)
     return git=>{
-        console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch: ${branch}`)
+        console.log(`clone repositopy:\n- clone repositopy: ${remote}\n- checkout branch: ${branch} \n- depth: ${depth}`)
         return git.clone(remote, local_path, ["-b", branch, "--depth", depth]).then(()=>console.log(`- finished!\n`))
     }
 }
@@ -122,15 +122,18 @@ export function run(options){
         copy: null,
         silent: false,
         ssh: null, // "[path]" 
-        account: null, // { username:"[username]", password: "[****]" }
+        username: null, // "[username]"
+        password: null, // "[****]"
         repository: null,
         config: null,
         local_ssh_key_path: 'ssh/',
+        debug: false
     }, options)
+    if(debug) console.log("marge::%s",JSON.stringify(options))
 
     const repository = Object.assign({ url: "", branch: "master", commit_label: "update by drone-plugin-git-sync" }, options.repository)
     const remote = repository.url
-    const account = options.account
+    const account = { username:options.username, password:options.password }
     const config = options.config
     const repository_name = getRepoName(repository.url)
     const repository_path = path.join(options.cwd, repository_name)
@@ -160,7 +163,8 @@ export function run(options){
                 account,
                 remote,
                 local_path: repository_name,
-                branch
+                branch,
+                depth
             })(git)
         )
         .then(()=>copy(repository_path, options.copy, {overwrite:options.overwrite}))
