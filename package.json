@@ -1,6 +1,6 @@
 {
   "name": "drone-plugin-git-sync",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "搬运代码至另一个仓库的的drone插件",
   "main": "src/main.js",
   "bin": {
